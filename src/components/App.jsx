@@ -155,7 +155,7 @@ export class App extends Component {
           />
         )}
 
-        <ToastContainer theme="colored" />
+        <ToastContainer theme="colored" autoClose={2500} />
       </>
     );
   }

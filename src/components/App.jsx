@@ -12,8 +12,8 @@ export class App extends Component {
   state = {
     query: '',
     page: 1,
-    gallery: [],
-    totalHits: 0,
+    imagesOnPage: 0,
+    totalImage: 0,
     isLoading: false,
     showModal: false,
     images: null,
@@ -24,7 +24,7 @@ export class App extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { query, page } = this.state;
-console.log(this.state)
+    // console.log(this.state)
     if (prevState.query !== query) {
       this.setState(({ isLoading }) => ({ isLoading: !isLoading }));
 
@@ -35,19 +35,24 @@ console.log(this.state)
             toast.warn('Sorry, there are no images matching your search query. Please try again.');
             return;
           }
+           
+          if (totalHits > 0) {
+            toast.info(`Hooray! We found ${totalHits} images.`);
+            
+          }
 
-          const gallery = hits.map(hit => ({
-            id: hit.id,
-            description: hit.tags,
-            smallImage: hit.webformatURL,
-            largeImage: hit.largeImageURL,
+          const gallery = hits.map( ({id, tags, webformatURL, largeImageURL })=> ({
+            id: id,
+            description: tags,
+            smallImage: webformatURL,
+            largeImage: largeImageURL,
           }));
 
           return this.setState({
             page: 1,
             images: gallery,
             imagesOnPage: gallery.length,
-            totalImages: totalHits,
+            totalImage: totalHits,
           });
         })
         .catch(error => this.setState({ error }))
@@ -60,13 +65,19 @@ console.log(this.state)
       this.setState(({ isLoading }) => ({ isLoading: !isLoading }));
 
       fetchImages(query, page)
-        .then(({ hits }) => {
-          console.log({hits})
-          const gallery = hits.map(hit => ({
-            id: hit.id,
-            description: hit.tags,
-            smallImage: hit.webformatURL,
-            largeImage: hit.largeImageURL,
+        .then(({ hits, totalHits }) => {
+
+
+          if (totalHits + 12 >= hits.length) {
+           toast.info(`We're sorry, but you've reached the end of search results.`);
+          }
+
+          console.log(hits)
+          const gallery = hits.map(({id, tags, webformatURL, largeImageURL })=> ({
+            id: id,
+            description: tags,
+            smallImage: webformatURL,
+            largeImage: largeImageURL,
           }));
 
           return this.setState(({ images, imagesOnPage }) => {
@@ -112,7 +123,7 @@ console.log(this.state)
     const {
       images,
       imagesOnPage,
-      totalImages,
+      totalImage,
       isLoading,
       showModal,
       currentImageUrl,
@@ -132,7 +143,7 @@ console.log(this.state)
 
         {isLoading && <Loader />}
 
-        {imagesOnPage >= 12 && imagesOnPage < totalImages && (
+        {imagesOnPage >= 12 && imagesOnPage < totalImage && (
           <Button onNextFetch={onNextFetch} />
         )}
 

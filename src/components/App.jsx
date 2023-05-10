@@ -30,23 +30,25 @@ export class App extends Component {
 
       fetchImages(query)
         .then(({ hits, totalHits }) => {
-
-          if(totalHits === 0) {
-            toast.warn('Sorry, there are no images matching your search query. Please try again.');
+          if (totalHits === 0) {
+            toast.warn(
+              'Sorry, there are no images matching your search query. Please try again.'
+            );
             return;
           }
-           
+
           if (totalHits > 0) {
             toast.info(`Hooray! We found ${totalHits} images.`);
-            
           }
 
-          const gallery = hits.map( ({id, tags, webformatURL, largeImageURL })=> ({
-            id: id,
-            description: tags,
-            smallImage: webformatURL,
-            largeImage: largeImageURL,
-          }));
+          const gallery = hits.map(
+            ({ id, tags, webformatURL, largeImageURL }) => ({
+              id: id,
+              description: tags,
+              smallImage: webformatURL,
+              largeImage: largeImageURL,
+            })
+          );
 
           return this.setState({
             page: 1,
@@ -66,21 +68,24 @@ export class App extends Component {
 
       fetchImages(query, page)
         .then(({ hits, totalHits }) => {
-
-
-          if (totalHits + 12 >= hits.length) {
-           toast.info(`We're sorry, but you've reached the end of search results.`);
+          if (page * 12 >= totalHits) {
+            toast.info(
+              `We're sorry, but you've reached the end of search results.`
+            );
           }
 
-          console.log(hits)
-          const gallery = hits.map(({id, tags, webformatURL, largeImageURL })=> ({
-            id: id,
-            description: tags,
-            smallImage: webformatURL,
-            largeImage: largeImageURL,
-          }));
+          const gallery = hits.map(
+            ({ id, tags, webformatURL, largeImageURL }) => ({
+              id: id,
+              description: tags,
+              smallImage: webformatURL,
+              largeImage: largeImageURL,
+            })
+          );
 
-          return this.setState(({ images, imagesOnPage }) => {
+          this.setState(({ images, imagesOnPage }) => {
+            console.log('imagesOnPage', imagesOnPage);
+
             return {
               images: [...images, ...gallery],
               imagesOnPage: imagesOnPage + gallery.length,

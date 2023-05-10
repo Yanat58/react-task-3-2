@@ -11,15 +11,16 @@ class Searchbar extends Component {
 
   state = {
     query: '',
+    totalHits: 0
   };
 
   onChangeInput = e => {
-    this.setState({ query: e.currentTarget.value });
+    this.setState({ query: e.currentTarget.value});
   };
 
   onSubmitForm = e => {
     e.preventDefault();
-
+ 
     const { onSubmit } = this.props;
     const { query } = this.state;
 
@@ -27,6 +28,7 @@ class Searchbar extends Component {
       toast.warn('Enter a search term.');
       return;
     }
+    
     this.setState({ query: '' });
     onSubmit(query);
   };

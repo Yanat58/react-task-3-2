@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import fetchImages from 'services/images-api';
 import Searchbar from 'components/Searchbar/Searchbar';
@@ -12,8 +12,8 @@ export class App extends Component {
   state = {
     query: '',
     page: 1,
-    imagesOnPage: 0,
-    totalImages: 0,
+    gallery: [],
+    totalHits: 0,
     isLoading: false,
     showModal: false,
     images: null,
@@ -24,13 +24,19 @@ export class App extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { query, page } = this.state;
-
+console.log(this.state)
     if (prevState.query !== query) {
       this.setState(({ isLoading }) => ({ isLoading: !isLoading }));
 
       fetchImages(query)
         .then(({ hits, totalHits }) => {
-          const imagesArray = hits.map(hit => ({
+
+          if(totalHits === 0) {
+            toast.warn('Sorry, there are no images matching your search query. Please try again.');
+            return;
+          }
+
+          const gallery = hits.map(hit => ({
             id: hit.id,
             description: hit.tags,
             smallImage: hit.webformatURL,
@@ -39,8 +45,8 @@ export class App extends Component {
 
           return this.setState({
             page: 1,
-            images: imagesArray,
-            imagesOnPage: imagesArray.length,
+            images: gallery,
+            imagesOnPage: gallery.length,
             totalImages: totalHits,
           });
         })
@@ -55,7 +61,8 @@ export class App extends Component {
 
       fetchImages(query, page)
         .then(({ hits }) => {
-          const imagesArray = hits.map(hit => ({
+          console.log({hits})
+          const gallery = hits.map(hit => ({
             id: hit.id,
             description: hit.tags,
             smallImage: hit.webformatURL,
@@ -64,8 +71,8 @@ export class App extends Component {
 
           return this.setState(({ images, imagesOnPage }) => {
             return {
-              images: [...images, ...imagesArray],
-              imagesOnPage: imagesOnPage + imagesArray.length,
+              images: [...images, ...gallery],
+              imagesOnPage: imagesOnPage + gallery.length,
             };
           });
         })
